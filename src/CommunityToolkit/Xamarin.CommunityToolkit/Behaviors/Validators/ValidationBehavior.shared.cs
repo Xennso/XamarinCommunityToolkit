@@ -19,6 +19,12 @@ namespace Xamarin.CommunityToolkit.Behaviors.Internals
 		public ValidationBehavior() => DefaultForceValidateCommand = new AsyncValueCommand(ForceValidate);
 
 		/// <summary>
+		/// Backing BindableProperty for the <see cref="IsEnabled"/> property.
+		/// </summary>
+		public static readonly BindableProperty IsEnabledProperty = 
+			BindableProperty.Create(nameof(IsEnabledProperty), typeof(bool), typeof(SelectorInvalidValueValidator), defaultValue: true);
+		 
+		/// <summary>
 		/// Backing BindableProperty for the <see cref="IsNotValid"/> property.
 		/// </summary>
 		public static readonly BindableProperty IsNotValidProperty =
@@ -107,6 +113,15 @@ namespace Xamarin.CommunityToolkit.Behaviors.Internals
 			set => SetValue(IsNotValidProperty, value);
 		}
 
+		/// <summary>
+		/// Indicates whether or not validation is enabled. If set to false validation will return true without validating. This is a bindable property.
+		/// </summary>
+		public bool IsEnabled 
+		{ 
+			get => (bool)GetValue(IsEnabledProperty); 
+			set => SetValue(IsEnabledProperty, value); 
+		}
+		
 		/// <summary>
 		/// The <see cref="Style"/> to apply to the element when validation is successful. This is a bindable property.
 		/// </summary>
@@ -278,7 +293,7 @@ namespace Xamarin.CommunityToolkit.Behaviors.Internals
 
 				try
 				{
-					var isValid = await ValidateAsync(Decorate(Value), token).ConfigureAwait(false);
+					var isValid = !IsEnabled ? true : await ValidateAsync(Decorate(Value), token).ConfigureAwait(false);
 					validationTokenSource = null;
 
 					if (token.IsCancellationRequested)
